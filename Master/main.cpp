@@ -30,10 +30,8 @@ void runServer(int port) {
 }
 int main() {
 	int port = 9000;
-	//runServer();
     try {
         runServer(port);
-        //registerWorker("127.0.0.1", 9000);
     }
     catch (exception e) {
         cout << e.what() << endl;
