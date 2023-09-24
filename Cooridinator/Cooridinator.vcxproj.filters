@@ -24,6 +24,9 @@
     <ClInclude Include="WorkerStateEnum.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="FileSpliter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Cooridinator.cpp">
@@ -33,6 +36,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="WorkerState.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSpliter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

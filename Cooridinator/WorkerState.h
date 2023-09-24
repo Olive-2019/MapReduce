@@ -22,6 +22,8 @@ class WorkerState
 	int port;
 	// 当前任务的开始时间
 	time_t start;
+	// 上次心跳时间
+	time_t lastTime;
 	// 当前worker的id
 	int workerID;
 public:
@@ -31,8 +33,12 @@ public:
 	//设置worker的状态
 	bool setState(WorkerStateEnum state);
 	//分配worker任务，阻塞函数模式
-	string signTask(WorkerStateEnum task, string inputFilePath);
+	string signTask(WorkerStateEnum task, string inputFilePath, int workerID);
 	//查看任务是否超时
 	bool isTimeOut();
+	// 检查当前worker是否死了
+	bool isDead();
+	// 设置心跳信息
+	void heartBreak();
 };
 

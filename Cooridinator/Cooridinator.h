@@ -6,6 +6,7 @@
 #include <exception>
 #include "WorkerState.h"
 #include "WorkerStateEnum.h"
+#include "FileSpliter.h"
 #include "../rest_rpc/include/rest_rpc.hpp"
 
 using std::pair;
@@ -31,7 +32,7 @@ class Cooridinator {
 	mutex workersListLock;
 public:
 	//有参构造函数，nMap和nReduce是工厂类指定的
-	Cooridinator(int nMap, int nReduce);
+	Cooridinator(int nReduce);
 	//Cooridinator运行过程，如分配任务等
 	void run(string inputFilePath);
 	//注册workers
@@ -40,5 +41,7 @@ public:
 	int getIdleWorker(WorkerStateEnum workerState);
 	// 将输入文件分成nMap个map的输入文件
 	vector<string> spiltInputFile(string inputFilePath);
+	// 心跳信息
+	void heartBreak(int workerID);
 };
 

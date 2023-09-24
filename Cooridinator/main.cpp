@@ -10,11 +10,26 @@ using std::thread;
 using namespace std;
 Cooridinator* coordinator;
 
-
+void heartBreak(rpc_conn conn, int workerID) {
+    coordinator->heartBreak(workerID);
+}
+void runServer(int port) {
+    rpc_server server(port, 1);
+    server.register_handler("heartBreak", heartBreak);
+    server.run();//Æô¶¯·þÎñ¶Ë
+}
 int main() {
-    coordinator = new Cooridinator(1, 1);
-    coordinator->registerWorker("127.0.0.1", 9000);
-    coordinator->run("example");
+    try {
+        thread runHeartBreak(runServer, 8998);
+        coordinator = new Cooridinator(1);
+        coordinator->registerWorker("127.0.0.1", 9000);
+        coordinator->run("../Files/example.txt");
+        runHeartBreak.join();
+    }
+    catch (exception e) {
+        cout << e.what() << endl;
+    }
+   
     cout << endl;
     return 0;
 }

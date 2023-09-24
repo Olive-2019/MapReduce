@@ -1,20 +1,16 @@
 #include "Cooridinator.h"
-Cooridinator::Cooridinator(int nMap, int nReduce) : nMap(nMap), nReduce(nReduce), 
-workersNum(0), workerCap(50){
+Cooridinator::Cooridinator(int nReduce) : nReduce(nReduce), workersNum(0), workerCap(50), nMap(0){
 
 }
 
 void Cooridinator::run(string inputFilePath) {
 	vector<string> spiltedInputFilesPath = spiltInputFile(inputFilePath);
-	// 选worker分配map任务
-	for (int i = 0; i < nMap; ++i) {
+	nMap = spiltedInputFilesPath.size() - 1;
+	while (nMap >= 0) {
 		int workerID = getIdleWorker(WorkerStateEnum::Map);
-		if (workerID < 0) {
-			throw exception("workers is not enough！");
-		}
-		cout << workersList[i].signTask(WorkerStateEnum::Map, spiltedInputFilesPath[i]) << endl;
+		if (workerID >= 0) workersList[workerID].signTask(WorkerStateEnum::Map, 
+			spiltedInputFilesPath[nMap], workerID);
 	}
-	//
 }
 bool Cooridinator::registerWorker(string ip, int port) {
 	workersListLock.lock();
@@ -42,7 +38,12 @@ int Cooridinator::getIdleWorker(WorkerStateEnum workerState) {
 }
 
 vector<string> Cooridinator::spiltInputFile(string inputFilePath) {
-	// 此处仅测试使用，实际需要文件划分
-	vector<string> spiltedFile{ inputFilePath };
+	vector<string> spiltedFile = FileSpliter(inputFilePath, 64).split();
 	return spiltedFile;
 }
+void Cooridinator::heartBreak(int workerID) {
+	workersListLock.lock();
+	workersList[workerID].heartBreak();
+	workersListLock.unlock();
+}
+
