@@ -31,6 +31,7 @@ string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int wor
     }
     //遇到连接错误、调用服务时参数不对等情况会抛出异常
     catch (const ::std::exception& e) {
+        cout << e.what() << endl;
         throw e;
     }
 }

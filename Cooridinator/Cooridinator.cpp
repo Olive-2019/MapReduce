@@ -6,11 +6,18 @@ Cooridinator::Cooridinator(int nReduce) : nReduce(nReduce), workersNum(0), worke
 void Cooridinator::run(string inputFilePath) {
 	vector<string> spiltedInputFilesPath = spiltInputFile(inputFilePath);
 	nMap = spiltedInputFilesPath.size() - 1;
+	vector<thread*> t;
 	//while (nMap >= 0) {
 		int workerID = getIdleWorker(WorkerStateEnum::Map);
-		if (workerID >= 0) workersList[workerID].signTask(WorkerStateEnum::Map, 
-			spiltedInputFilesPath[nMap], workerID);
+		if (workerID >= 0) t.push_back(new thread(&WorkerState::signTask, &workersList[workerID], WorkerStateEnum::Map,
+			spiltedInputFilesPath[nMap], workerID));
 	//}
+	for (int i = 0; i < t.size(); ++i) {
+		t[i]->join();
+		delete t[i];
+		t[i] = NULL;
+	}
+
 }
 bool Cooridinator::registerWorker(string ip, int port) {
 	workersListLock.lock();

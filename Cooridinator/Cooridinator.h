@@ -4,6 +4,7 @@
 #include <map>
 #include <mutex>
 #include <exception>
+#include <thread>
 #include "WorkerState.h"
 #include "WorkerStateEnum.h"
 #include "FileSpliter.h"
@@ -15,6 +16,7 @@ using std::vector;
 using std::string;
 using std::mutex;
 using std::exception;
+using std::thread;
 
 class Cooridinator {
 	
