@@ -6,16 +6,15 @@ Task::Task(int workerID) : workerID (workerID) {}
 string Task::run(string inputFilePath) {
     stop = false;
     thread thread(&Task::heartBreak,this, workerID);
-    Sleep(500);//假装在执行任务
+    Sleep(5000);//假装在执行任务
     stop = true;
     try {
         thread.join();
     }
     catch (exception e) {
         cout << e.what() << endl;
-        cout << "here" << endl;
     }
-    cout << "hello" << endl;
+    cout << "Task::run end" << endl;
     return inputFilePath;
 }
 void Task::heartBreak(int workerID) {
@@ -29,7 +28,7 @@ void Task::heartBreak(int workerID) {
     
     //调用远程服务，返回该任务写出文件路径
     while (!stop) {
-        Sleep(100);
+        Sleep(1000);
         string outputFilePath = client.call<string>("heartBreak", workerID);
     }
     

@@ -3,7 +3,7 @@
 
 WorkerState::WorkerState(string ip, int port, int workerID) : ip(ip), port(port),
 workerState(WorkerStateEnum::Idle), workerID(workerID), start(0){}
-WorkerStateEnum WorkerState::getState() {
+WorkerStateEnum WorkerState::getState() const {
 	return workerState;
 }
 
@@ -13,8 +13,10 @@ bool WorkerState::setState(WorkerStateEnum state) {
 	return true;
 }
 
-string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int workerID) {
+string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int workerID, int taskID) {
     try {
+        if (workerState != task) throw exception("WorkerState::signTask logical error");
+        this->taskID = taskID;
         //记录任务开始时间
         start = time(NULL);
         //建立连接
@@ -34,6 +36,9 @@ string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int wor
         cout << e.what() << endl;
         throw e;
     }
+}
+int WorkerState::getTaskID() const {
+    return taskID;
 }
 bool WorkerState::isTimeOut() {
 	time_t now = time(NULL);
@@ -58,4 +63,7 @@ bool WorkerState::isDead() {
         return true;
     }
     return false;
+}
+int WorkerState::getTaskID() {
+    return taskID;
 }
