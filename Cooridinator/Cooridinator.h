@@ -72,6 +72,6 @@ public:
 	// ĞÄÌøĞÅÏ¢
 	void heartBreak(int workerID);
 	// ×¢²áworkers
-	bool registerWorker(string ip, int port);
+	bool registerWorker(string ip, int workerServerPort, int workerStopControllerPort);
 };
 

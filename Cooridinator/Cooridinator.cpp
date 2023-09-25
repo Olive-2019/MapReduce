@@ -152,10 +152,10 @@ string Cooridinator::checkWorker(const shared_future<string>& futureOutputFilePa
 	return "";
 }
 
-bool Cooridinator::registerWorker(string ip, int port) {
+bool Cooridinator::registerWorker(string ip, int workerServerPort, int workerStopControllerPort) {
 	workersListLock.lock();
 	if (workersList.size() < workerCap) {
-		WorkerState worker(ip, port, workersList.size());
+		WorkerState worker(ip, workerServerPort, workerStopControllerPort, workersList.size());
 		workersList.push_back(worker);
 		workersListLock.unlock();
 		return true;

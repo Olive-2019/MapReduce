@@ -2,12 +2,18 @@
 #include <iostream>
 using std::cout;
 using std::endl;
-Task::Task(int workerID) : workerID (workerID) {}
+Task::Task(int workerID) : workerID (workerID), stopTask(false), stopHeartBreak(false) {}
+bool Task::stopTaskRunner(string tmpFilePath) {
+    if (stopTask) 
+        // 删除中间文件
+        if (remove(tmpFilePath.c_str())) throw exception("Task::stopTaskRunner delete tmp file failed");
+    return stopTask;
+}
 string Task::run(string inputFilePath) {
-    stop = false;
+    stopHeartBreak = false;
     thread thread(&Task::heartBreak,this, workerID);
     Sleep(500);//假装在执行任务
-    stop = true;
+    stopHeartBreak = true;
     try {
         thread.join();
     }
@@ -27,10 +33,11 @@ void Task::heartBreak(int workerID) {
     if (!has_connected) throw exception("Task::heartBreak connect timeout");
     
     //调用远程服务，返回该任务写出文件路径
-    while (!stop) {
+    while (!stopHeartBreak) {
         Sleep(100);
         string outputFilePath = client.call<string>("heartBreak", workerID);
     }
-    
-
+}
+void Task::stopTaskAPI() {
+    stopTask = true;
 }

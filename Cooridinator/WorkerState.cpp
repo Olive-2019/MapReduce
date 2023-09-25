@@ -1,8 +1,8 @@
 #include "WorkerState.h"
 
 
-WorkerState::WorkerState(string ip, int port, int workerID) : ip(ip), port(port),
-workerState(WorkerStateEnum::Idle), workerID(workerID), start(0), taskID(-1){}
+WorkerState::WorkerState(string ip, int workerServerPort, int workerStopContorllerPort, int workerID) : ip(ip), workerServerPort(workerServerPort),
+workerStopContorllerPort(workerStopContorllerPort), workerState(WorkerStateEnum::Idle), workerID(workerID), start(0), taskID(-1) {}
 WorkerStateEnum WorkerState::getState() const {
 	return workerState;
 }
@@ -20,7 +20,7 @@ string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int wor
         //记录任务开始时间
         start = time(NULL);
         //建立连接
-        rpc_client client(ip, port);// IP 地址，端口号
+        rpc_client client(ip, workerServerPort);// IP 地址，端口号
         //设定超时 5s（不填默认为 3s），connect 超时返回 false，成功返回 true
         bool has_connected = client.connect(5);
         //没有建立连接则退出程序
@@ -69,5 +69,23 @@ bool WorkerState::isDead() {
 void WorkerState::stopTask() {
     workerState = WorkerStateEnum::Idle;
     taskID = -1;
-    //需要联动worker端，但是目前没想好怎么控制那边不执行任务
+    //调用worker的stop控制器
+    try {
+        //建立连接
+        rpc_client client(ip, workerStopContorllerPort);// IP 地址，端口号
+        //设定超时 5s（不填默认为 3s），connect 超时返回 false，成功返回 true
+        bool has_connected = client.connect(5);
+        //没有建立连接则退出程序
+        if (!has_connected) {
+            throw exception("WorkerState::stopTask connect timeout");
+        }
+        //调用远程服务
+        client.call<void>("stopTask");// stopTask 为事先注册好的服务名，后面写参数
+        
+    }
+    //遇到连接错误、调用服务时参数不对等情况会抛出异常
+    catch (const ::std::exception& e) {
+        cout << e.what() << endl;
+        throw e;
+    }
 }

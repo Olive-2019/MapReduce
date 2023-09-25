@@ -11,23 +11,42 @@ using namespace rest_rpc::rpc_service;
 using std::string;
 using namespace std;
 
+Task* taskRunner;
+
+void stopTask(rpc_conn conn) {
+	if (!taskRunner) return;
+	taskRunner->stopTaskAPI();
+	taskRunner = NULL;
+}
 
 string runTask(rpc_conn conn, int taskType, string inputFilePath, int workerID) {
-	Task* taskRunner = NULL;
+	taskRunner = NULL;
 	if (taskType == (int)WorkerStateEnum::Map) taskRunner = new MapTask(workerID);
 	else if (taskType == (int)WorkerStateEnum::Reduce) taskRunner = new ReduceTask(workerID);
 	if (!taskRunner) return "taskType error";
-	return taskRunner->run(inputFilePath);
+	string outputFilePath = taskRunner->run(inputFilePath);
+	delete taskRunner;
+	taskRunner = NULL;
+	return outputFilePath;
 }
 void runServer(int port) {
 	rpc_server server(port, 10);
 	server.register_handler("runTask", runTask);
 	server.run();//启动服务端
 }
+void runStopTaskContorller(int port) {
+	rpc_server server(port, 10);
+	server.register_handler("stopTask", stopTask);
+	server.run();//启动服务端
+}
+
 int main() {
-	int port = 9000;
+	int serverPort = 9000;
+	int stopControllerPort = 8999;
     try {
-        runServer(port);
+		thread stopController(runStopTaskContorller, stopControllerPort);
+        runServer(serverPort);
+		stopController.join();
     }
     catch (exception e) {
         cout << e.what() << endl;

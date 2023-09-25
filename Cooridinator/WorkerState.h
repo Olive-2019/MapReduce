@@ -18,8 +18,10 @@ class WorkerState
 	WorkerStateEnum workerState;
 	// worker ip
 	string ip;
-	// worker 端口号
-	int port;
+	// worker 服务端口号
+	int workerServerPort;
+	// worker 停止控制端口号
+	int workerStopContorllerPort;
 	// 当前任务的开始时间
 	time_t start;
 	// 上次心跳时间
@@ -29,7 +31,7 @@ class WorkerState
 	// 当前执行任务的编号
 	int taskID;
 public:
-	WorkerState(string ip, int port, int workerID);
+	WorkerState(string ip, int workerServerPort, int workerStopContorllerPort, int workerID);
 	//获取worker状态
 	WorkerStateEnum getState() const;
 	//设置worker的状态
