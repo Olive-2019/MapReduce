@@ -20,7 +20,8 @@ using std::exception;
 
 using std::thread;
 using std::mutex;
-using std::future;
+//using std::future;
+using std::shared_future;
 using std::async;
 using std::future_status;
 using std::chrono::seconds;
@@ -50,11 +51,9 @@ class Cooridinator {
 
 
 	// 轮询worker，更新状态，并返回任务完成的输出路径
-	vector<string> poolingWorker(const vector<future<string>>& futureOutputFilesPath, set<int>& tasks);
+	vector<string> poolingWorker(const vector<shared_future<string>>& futureOutputFilesPath, set<int>& tasks);
 	// 查询Worker，更新状态，并返回输出路径
-	string checkWorker(const future<string>& futureOutputFilePath, int workerID, set<int>& tasks);
-	// 注册workers
-	bool registerWorker(string ip, int port);
+	string checkWorker(const shared_future<string>& futureOutputFilePath, int workerID, set<int>& tasks);
 	// 获取一个空闲的worker，并将其占用，如果不存在可以获取的worker，则返回-1
 	int getIdleWorker(WorkerStateEnum workerState);
 	// 设置worker为idle状态
@@ -72,5 +71,7 @@ public:
 	void run(string inputFilePath);
 	// 心跳信息
 	void heartBreak(int workerID);
+	// 注册workers
+	bool registerWorker(string ip, int port);
 };
 

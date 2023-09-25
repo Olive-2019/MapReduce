@@ -44,5 +44,7 @@ public:
 	bool isDead();
 	// 设置心跳信息
 	void heartBreak();
+	// 终止任务
+	void stopTask();
 };
 

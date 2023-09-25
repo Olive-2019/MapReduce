@@ -25,7 +25,7 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 	// 存放每一个task的输出文件路径
 	vector<string> outputFilesPath;
 	// 存放每一个worker的输出文件路径
-	vector<future<string>> workerOutputFilesPathFuture(workersList.size());
+	vector<shared_future<string>> workerOutputFilesPathFuture(workersList.size());
 	// 当前剩余task的id
 	set<int> tasksID;
 	// taskID和workerID映射容器
@@ -44,7 +44,7 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 				// 轮询该任务分配的worker节点
 				for (int i = 0; i < tasksIdToWorkersID[*taskID].size(); ++i) {
 					int workerID = tasksIdToWorkersID[*taskID][i];
-					string curOutputFilePath = checkWorker(workerOutputFilesPathFuture[workerID], workerID);
+					string curOutputFilePath = checkWorker(workerOutputFilesPathFuture[workerID], workerID, tasksID);
 					// 有其中一个任务结束
 					if (!curOutputFilePath.size()) {
 						// 输出写入
@@ -69,10 +69,10 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 				if (isFinish) {
 					// 如果任务结束，则停止已分配的所有worker任务
 					for (int i = 0; i < tasksIdToWorkersID[*taskID].size(); ++i) stopWorker(tasksIdToWorkersID[*taskID][i]);
-					// 更新剩余task列表
-					taskID = deleteTask(tasksID, taskID);
 					// 清空当前任务的worker列表
 					tasksIdToWorkersID[*taskID].clear();
+					// 更新剩余task列表
+					taskID = deleteTask(tasksID, taskID);
 				}
 				else taskID++;// 准备下一个检查task
 			}
@@ -103,6 +103,16 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 						Sleep(100);
 					}
 				}
+				else {
+					// 有空闲worker
+					if (workerID < 0) throw exception("Cooridinator::scheduleTask logical error");
+					// 分配任务
+					workerOutputFilesPathFuture[workerID] = async(&WorkerState::signTask,
+						&workersList[workerID], taskType, inputFilesPath[*taskID], workerID, *taskID);
+					tasksIdToWorkersID[*taskID].push_back(workerID);
+					// 准备下一个检查task
+					taskID++;
+				}
 			}
 			
 		}
@@ -118,28 +128,27 @@ set<int>::iterator Cooridinator::deleteTask(set<int>& leftTask, set<int>::iterat
 	return nextTask;
 }
 
-vector<string> Cooridinator::poolingWorker(const vector<future<string>>& futureOutputFilesPath, set<int>& tasks) {
+vector<string> Cooridinator::poolingWorker(const vector<shared_future<string>>& futureOutputFilesPath, set<int>& tasks) {
 	vector<string> outputFilesPath;
 	for (int i = 0; i < futureOutputFilesPath.size(); ++i) {
 		string filePath = checkWorker(futureOutputFilesPath[i], i, tasks);
-		if (!filePath.size()) outputFilesPath.push_back(filePath);
+		if (filePath.size()) outputFilesPath.push_back(filePath);
 	}
 	return outputFilesPath;
 }
 
-string Cooridinator::checkWorker(const future<string>& futureOutputFilePath, int workerID, set<int>& tasks) {
+string Cooridinator::checkWorker(const shared_future<string>& futureOutputFilePath, int workerID, set<int>& tasks) {
 	// 只处理执行任务的节点
 	if (workersList[workerID].getState() == WorkerStateEnum::Idle ||
 		workersList[workerID].getState() == WorkerStateEnum::Dead ||
 		workersList[workerID].getState() == WorkerStateEnum::TimeOut) return "";
-	//只等1s
-	future_status status = futureOutputFilePath.wait_for(seconds(1));
-	// 如果有已经完成的，将其设置为Idle，并读出输出文件路径
-	if (status == future_status::ready) {
+	if (futureOutputFilePath._Is_ready()) {
+		// 如果已经完成，将其设置为Idle，并读出输出文件路径
 		setWorkerIdle(workerID);
 		tasks.erase(workersList[workerID].getTaskID());
-		return futureOutputFilePath._Get_value();
+		return futureOutputFilePath.get();
 	}
+	
 	return "";
 }
 
@@ -175,7 +184,7 @@ void Cooridinator::setWorkerIdle(int workerID) {
 
 void Cooridinator::stopWorker(int workerID) {
 	workersListLock.lock();
-	workersList[workerID].stop();
+	workersList[workerID].stopTask();
 	workersListLock.unlock();
 }
 

@@ -2,13 +2,13 @@
 
 
 WorkerState::WorkerState(string ip, int port, int workerID) : ip(ip), port(port),
-workerState(WorkerStateEnum::Idle), workerID(workerID), start(0){}
+workerState(WorkerStateEnum::Idle), workerID(workerID), start(0), taskID(-1){}
 WorkerStateEnum WorkerState::getState() const {
 	return workerState;
 }
 
 bool WorkerState::setState(WorkerStateEnum state) {
-	if (workerState != WorkerStateEnum::Idle) return false;
+	// if (workerState != WorkerStateEnum::Idle) return false;
 	workerState = state;
 	return true;
 }
@@ -29,6 +29,7 @@ string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int wor
         }
         //调用远程服务，返回该任务写出文件路径
         string outputFilePath = client.call<string>("runTask", (int)task, inputFilePath, workerID);// runTask 为事先注册好的服务名，后面写参数
+        cout << "WorkerState::signTask " << outputFilePath << endl;
         return outputFilePath;
     }
     //遇到连接错误、调用服务时参数不对等情况会抛出异常
@@ -64,6 +65,9 @@ bool WorkerState::isDead() {
     }
     return false;
 }
-int WorkerState::getTaskID() {
-    return taskID;
+
+void WorkerState::stopTask() {
+    workerState = WorkerStateEnum::Idle;
+    taskID = -1;
+    //需要联动worker端，但是目前没想好怎么控制那边不执行任务
 }

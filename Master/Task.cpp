@@ -6,7 +6,7 @@ Task::Task(int workerID) : workerID (workerID) {}
 string Task::run(string inputFilePath) {
     stop = false;
     thread thread(&Task::heartBreak,this, workerID);
-    Sleep(5000);//假装在执行任务
+    Sleep(500);//假装在执行任务
     stop = true;
     try {
         thread.join();
@@ -15,7 +15,7 @@ string Task::run(string inputFilePath) {
         cout << e.what() << endl;
     }
     cout << "Task::run end" << endl;
-    return inputFilePath;
+    return "Task: " + inputFilePath;
 }
 void Task::heartBreak(int workerID) {
     string ip = "127.0.0.1";
@@ -28,7 +28,7 @@ void Task::heartBreak(int workerID) {
     
     //调用远程服务，返回该任务写出文件路径
     while (!stop) {
-        Sleep(1000);
+        Sleep(100);
         string outputFilePath = client.call<string>("heartBreak", workerID);
     }
     

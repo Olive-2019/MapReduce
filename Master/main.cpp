@@ -20,7 +20,7 @@ string runTask(rpc_conn conn, int taskType, string inputFilePath, int workerID) 
 	return taskRunner->run(inputFilePath);
 }
 void runServer(int port) {
-	rpc_server server(port, 1);
+	rpc_server server(port, 10);
 	server.register_handler("runTask", runTask);
 	server.run();//Æô¶¯·şÎñ¶Ë
 }

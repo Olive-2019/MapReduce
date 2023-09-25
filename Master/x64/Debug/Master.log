@@ -1,8 +1,4 @@
 ﻿  Task.cpp
 C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(285,12): warning C4244: “return”: 从“uint64_t”转换到“long”，可能丢失数据
 C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(586,36): warning C4244: “参数”: 从“uint64_t”转换到“long”，可能丢失数据
-  main.cpp
-C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(285,12): warning C4244: “return”: 从“uint64_t”转换到“long”，可能丢失数据
-C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(586,36): warning C4244: “参数”: 从“uint64_t”转换到“long”，可能丢失数据
-  正在生成代码...
   Master.vcxproj -> C:\Users\14972\source\repos\Cooridinator\x64\Debug\Master.exe
