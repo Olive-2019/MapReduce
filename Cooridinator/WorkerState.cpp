@@ -46,6 +46,7 @@ bool WorkerState::isTimeOut() {
 }
 void WorkerState::heartBreak() {
     lastTime = time(NULL);
+    cout << "WorkerState::heartBreak lastTime:" << lastTime << endl;
 }
 bool WorkerState::isDead() {
     time_t now = time(NULL);
