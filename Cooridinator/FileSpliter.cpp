@@ -25,7 +25,7 @@ vector<string> FileSpliter::split() {
 			outfile.close();
 			curOutputFilePath = "../Files/mr_input_" + to_string(outputFileNo) + ".data";
 			blockLeft = blockSize;
-			outfile.open(curOutputFilePath, ios::out | ios::app);
+			outfile.open(curOutputFilePath, ios::out);
 			if (!outfile.is_open())
 				throw exception("FileSpliter::FileSpliter didn't open output file " + outputFileNo);
 			outputFilePaths.push_back(curOutputFilePath);

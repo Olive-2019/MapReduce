@@ -8,7 +8,7 @@ void Cooridinator::run(string inputFilePath) {
 	vector<string> mapperInputFilesPath = spiltInputFile(inputFilePath);
 	// 分配mapper任务
 	vector<string> mapperOutputFilesPath = scheduleTask(mapperInputFilesPath, WorkerStateEnum::Map);
-	for (int i = 0; i < mapperOutputFilesPath.size(); ++i) cout << mapperInputFilesPath[i] << endl;
+	cout << "mapper task over" << endl;
 }
 /*
 * 任务分配
@@ -44,9 +44,16 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 				// 轮询该任务分配的worker节点
 				for (int i = 0; i < tasksIdToWorkersID[*taskID].size(); ++i) {
 					int workerID = tasksIdToWorkersID[*taskID][i];
-					string curOutputFilePath = checkWorker(workerOutputFilesPathFuture[workerID], workerID, tasksID);
+					string curOutputFilePath;
+					try {
+						curOutputFilePath = checkWorker(workerOutputFilesPathFuture[workerID], workerID, tasksID);
+					}
+					catch (exception e) {
+						cout << e.what() << endl;
+					}
+					
 					// 有其中一个任务结束
-					if (!curOutputFilePath.size()) {
+					if (curOutputFilePath.size()) {
 						// 输出写入
 						outputFilesPath.push_back(curOutputFilePath);
 						// 更新标志位
@@ -59,7 +66,7 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 						int newWorkerID = getIdleWorker(taskType);
 						if (newWorkerID >= 0) {
 							workerOutputFilesPathFuture[newWorkerID] = async(&WorkerState::signTask, &workersList[newWorkerID],
-								WorkerStateEnum::Map, inputFilesPath[*taskID], newWorkerID, *taskID);
+								WorkerStateEnum::Map, inputFilesPath[*taskID], newWorkerID, *taskID, nReduce);
 							tasksIdToWorkersID[*taskID].push_back(newWorkerID);
 						}
 					}
@@ -93,7 +100,7 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 						if (workerID < 0) throw exception("Cooridinator::scheduleTask logical error");
 						// 分配任务
 						workerOutputFilesPathFuture[workerID] = async(&WorkerState::signTask, 
-							&workersList[workerID], taskType, inputFilesPath[*taskID], workerID, *taskID);
+							&workersList[workerID], taskType, inputFilesPath[*taskID], workerID, *taskID, nReduce);
 						tasksIdToWorkersID[*taskID].push_back(workerID);
 						// 准备下一个检查task
 						taskID++;
@@ -108,7 +115,7 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 					if (workerID < 0) throw exception("Cooridinator::scheduleTask logical error");
 					// 分配任务
 					workerOutputFilesPathFuture[workerID] = async(&WorkerState::signTask,
-						&workersList[workerID], taskType, inputFilesPath[*taskID], workerID, *taskID);
+						&workersList[workerID], taskType, inputFilesPath[*taskID], workerID, *taskID, nReduce);
 					tasksIdToWorkersID[*taskID].push_back(workerID);
 					// 准备下一个检查task
 					taskID++;

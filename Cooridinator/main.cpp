@@ -21,7 +21,7 @@ void runServer(int port) {
 int main() {
     try {
         thread runHeartBreak(runServer, 8998);
-        coordinator = new Cooridinator(1);
+        coordinator = new Cooridinator(2);
         coordinator->registerWorker("127.0.0.1", 9000, 8999);
         coordinator->run("../Files/example.txt");
         runHeartBreak.join();

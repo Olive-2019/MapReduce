@@ -6,6 +6,7 @@
 #include "MapTask.h"
 #include "ReduceTask.h"
 #include "WorkerStateEnum.h"
+#include "FileCoder.h"
 using namespace rest_rpc;
 using namespace rest_rpc::rpc_service;
 using std::string;
@@ -19,12 +20,13 @@ void stopTask(rpc_conn conn) {
 	taskRunner = NULL;
 }
 
-string runTask(rpc_conn conn, int taskType, string inputFilePath, int workerID) {
+string runTask(rpc_conn conn, int taskType, string inputFilePath, int workerID, int nReduce) {
 	taskRunner = NULL;
-	if (taskType == (int)WorkerStateEnum::Map) taskRunner = new MapTask(workerID);
-	else if (taskType == (int)WorkerStateEnum::Reduce) taskRunner = new ReduceTask(workerID);
+	int blockSize = 16;
+	if (taskType == (int)WorkerStateEnum::Map) taskRunner = new MapTask(workerID, blockSize);
+	else if (taskType == (int)WorkerStateEnum::Reduce) taskRunner = new ReduceTask(workerID, blockSize);
 	if (!taskRunner) return "taskType error";
-	string outputFilePath = taskRunner->run(inputFilePath);
+	string outputFilePath = taskRunner->run(inputFilePath, nReduce);
 	delete taskRunner;
 	taskRunner = NULL;
 	return outputFilePath;
@@ -46,7 +48,12 @@ int main() {
     try {
 		thread stopController(runStopTaskContorller, stopControllerPort);
         runServer(serverPort);
-		stopController.join();
+		stopController.join();/*
+		map<string, string> inputData;
+		FileCoder fileCoder("../Files/mr_input_1.data", 300);
+		while (!fileCoder.isInputEOF()) {
+			inputData = fileCoder.decodeMapperInputData();
+		}*/
     }
     catch (exception e) {
         cout << e.what() << endl;

@@ -13,9 +13,11 @@ bool WorkerState::setState(WorkerStateEnum state) {
 	return true;
 }
 
-string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int workerID, int taskID) {
+string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int workerID, int taskID, int nReduce) {
     try {
-        if (workerState != task) throw exception("WorkerState::signTask logical error");
+        if (workerState != task) {
+            throw exception("WorkerState::signTask logical error");
+        }
         this->taskID = taskID;
         //记录任务开始时间
         start = time(NULL);
@@ -28,7 +30,7 @@ string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int wor
             throw exception("WorkerState::signTask connect timeout");
         }
         //调用远程服务，返回该任务写出文件路径
-        string outputFilePath = client.call<string>("runTask", (int)task, inputFilePath, workerID);// runTask 为事先注册好的服务名，后面写参数
+        string outputFilePath = client.call<string>("runTask", (int)task, inputFilePath, workerID, nReduce);// runTask 为事先注册好的服务名，后面写参数
         cout << "WorkerState::signTask " << outputFilePath << endl;
         return outputFilePath;
     }
@@ -44,7 +46,7 @@ int WorkerState::getTaskID() const {
 bool WorkerState::isTimeOut() {
 	time_t now = time(NULL);
 	double diff = difftime(now, start);
-	if (diff > 10) {
+	if (diff > 100) {
         // 超过10s
 		workerState = WorkerStateEnum::TimeOut;
 		return true;
@@ -58,7 +60,7 @@ void WorkerState::heartBreak() {
 bool WorkerState::isDead() {
     time_t now = time(NULL);
     double diff = difftime(now, lastTime);
-    if (diff > 3) {
+    if (diff > 30) {
         // 超过3s，给这个worker判死刑
         workerState = WorkerStateEnum::Dead;
         return true;

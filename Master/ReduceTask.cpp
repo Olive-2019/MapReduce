@@ -1,6 +1,6 @@
 #include "ReduceTask.h"
 
-string ReduceTask::run(string inputFilePath) {
-	Task::run(inputFilePath);
+string ReduceTask::run(string inputFilePath, int nReduce) {
+	Task::run(inputFilePath, nReduce);
 	return "ReduceTask " + inputFilePath;
 }

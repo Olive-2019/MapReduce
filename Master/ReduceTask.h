@@ -4,7 +4,7 @@ class ReduceTask :
     public Task
 {
 public:
-    ReduceTask(int workerID) : Task(workerID) {}
-    string run(string inputFilePath);
+    ReduceTask(int workerID, int blockSize) : Task(workerID, blockSize) {}
+    string run(string inputFilePath, int nReduce);
 };
 
