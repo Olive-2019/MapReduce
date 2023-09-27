@@ -1,4 +1,6 @@
 #include "MapTask.h"
+#include <iostream>
+using namespace std;
 string MapTask::run(string inputFilePath, int nReduce) {
 	// 调用父类的run做统一操作
 	Task::run(inputFilePath, nReduce);
@@ -31,6 +33,11 @@ string MapTask::run(string inputFilePath, int nReduce) {
 		// 继续往缓冲区写
 		outputKV.insert(outputKV.end(), tmpOutputKV.begin(), tmpOutputKV.end());
 	}
+	
+	if (taskID == 3) {
+		cout << "here" << endl;
+	}
+
 	// 最后把缓冲区刷新一下
 	if (outputKV.size()) {
 		vector<vector<pss>> curOutputPartitionData = shuffle(outputKV);
@@ -40,11 +47,17 @@ string MapTask::run(string inputFilePath, int nReduce) {
 	}
 	// 最后检查一次是否需要停机，停机就删除所有临时文件并退出
 	if (Task::stopTaskRunner(tmpOutputFilesPath)) return "exit";
+
+	/*if (taskID == 3) {
+		cout << "here" << endl;
+	}*/
+
 	// 将临时文件转成正式的data文件
 	for (int partitionID = 0; partitionID < nReduce; ++partitionID)
 		fileCoder.writeMapperOutputFile(tmpOutputFilesPath[partitionID]);
 	// 调用父类的结束任务后处理函数
 	Task::afterRun();
+	cout << "MapTask::run over" << endl;
 	return "over";
 }
 int MapTask::partitionValue(string key) {

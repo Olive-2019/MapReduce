@@ -46,7 +46,9 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 					int workerID = tasksIdToWorkersID[*taskID][i];
 					string curOutputFilePath;
 					try {
+						// 最后一次不知道为什么不能返回值
 						curOutputFilePath = checkWorker(workerOutputFilesPathFuture[workerID], workerID, tasksID);
+						//cout << "Cooridinator::scheduleTask " << curOutputFilePath << endl;
 					}
 					catch (exception e) {
 						cout << e.what() << endl;
@@ -74,6 +76,8 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 				}
 				// 该任务结束
 				if (isFinish) {
+					// tasksID没有东西就直接返回了 
+					if (!tasksID.size()) break;
 					// 如果任务结束，则停止已分配的所有worker任务
 					for (int i = 0; i < tasksIdToWorkersID[*taskID].size(); ++i) stopWorker(tasksIdToWorkersID[*taskID][i]);
 					// 清空当前任务的worker列表
@@ -81,7 +85,9 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 					// 更新剩余task列表
 					taskID = deleteTask(tasksID, taskID);
 				}
-				else taskID++;// 准备下一个检查task
+				else {
+					taskID++;// 准备下一个检查task
+				}
 			}
 			// 未分配worker 
 			else {
@@ -149,6 +155,7 @@ string Cooridinator::checkWorker(const shared_future<string>& futureOutputFilePa
 	if (workersList[workerID].getState() == WorkerStateEnum::Idle ||
 		workersList[workerID].getState() == WorkerStateEnum::Dead ||
 		workersList[workerID].getState() == WorkerStateEnum::TimeOut) return "";
+	// 就在这里无法返回
 	if (futureOutputFilePath._Is_ready()) {
 		// 如果已经完成，将其设置为Idle，并读出输出文件路径
 		setWorkerIdle(workerID);
