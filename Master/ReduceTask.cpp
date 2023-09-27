@@ -18,8 +18,13 @@ string ReduceTask::run(string inputFilePath, int otherTaskNum) {
 }
 pss ReduceTask::userDefinedTask(vector<pss> inputKV) {
 	string key = inputKV[0].first;
-	int cnt = inputKV.size();
-	return pss(key, to_string(cnt));
+	string line;
+	for (pss oneWord : inputKV) {
+		line += oneWord.second;
+		line += ',';
+	}
+	line.pop_back();
+	return pss(key, line);
 }
 vector<string> ReduceTask::getInputFilesPath() {
 	vector<string> inputFilesPath;

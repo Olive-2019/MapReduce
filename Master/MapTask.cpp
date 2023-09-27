@@ -89,7 +89,7 @@ vector<pss> MapTask::userDefinedTask(const vector<pss>& inputKV) {
 		string inputline = it->second;
 		vector<string> cur = stringSplit(inputline, ' ');
 		for (auto curIt = cur.begin(); curIt != cur.end(); ++curIt) 
-			outputKV.push_back(pss(*curIt, "1"));
+			outputKV.push_back(pss(*curIt, it->first));
 	}
 	return outputKV;
 }
