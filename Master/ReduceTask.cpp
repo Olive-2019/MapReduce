@@ -3,7 +3,7 @@
 string ReduceTask::run(string inputFilePath, int otherTaskNum) {
 	Task::run(inputFilePath, otherTaskNum);
 	// reduce 任务输出文件路径
-	string outputFilePath = "mr_output_" + to_string(taskID) + ".data";
+	string outputFilePath = "../Files/mr_output_" + to_string(taskID) + ".data";
 	// 数据文件排序，并生成新临时文件
 	string shuffledInputDataPath = shuffle();
 	// 读入有序文件并运行reduce任务
@@ -83,11 +83,6 @@ vector<pss> ReduceTask::readTmpFileAndRunReducer(string tmpFile) {
 	vector<pss> reduceResult;
 	while (!fileCoder.isInputEOF()) {
 		vector<pss> inputData = fileCoder.decodeOneKeyInputData();
-		if (fileCoder.isInputEOF() && inputData.back().first != inputData[0].first) {
-			vector<pss> inputDataLast{ inputData.back() };
-			inputData.pop_back();
-			reduceResult.push_back(userDefinedTask(inputDataLast));
-		}
 		reduceResult.push_back(userDefinedTask(inputData));
 	}
 	return reduceResult;

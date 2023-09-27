@@ -51,9 +51,6 @@ vector<pss> FileCoder::decodeOneKeyInputData() {
 		curData = decodeOneInputData();
 		if (curData.first == key) oneKeyData.push_back(curData);
 	}
-	if (isInputEOF()) {
-		if (curData.first != key) oneKeyData.push_back(curData);//虽然不应该加入，但是没办法，最后一次得手动检查一下是否需要分离
-	}
 	nextOneRow = curData;
 	return oneKeyData;
 }
