@@ -8,7 +8,7 @@
 #include <thread>
 #include "WorkerState.h"
 #include "WorkerStateEnum.h"
-#include "FileSpliter.h"
+#include "FileIO.h"
 #include "../rest_rpc/include/rest_rpc.hpp"
 
 using std::set;
@@ -66,6 +66,9 @@ class Cooridinator {
 	vector<string> spiltInputFile(string inputFilePath);
 	// 返回reduce taskID的字符串
 	vector<string> getReduceTasksID() const;
+
+	// 将多个reduce节点输出的文件汇总到一起
+	string shuffle(const vector<string>& outputFilesPath);
 
 public:
 	//有参构造函数，nMap和nReduce是工厂类指定的

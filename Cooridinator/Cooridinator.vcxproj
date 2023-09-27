@@ -133,13 +133,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Cooridinator.h" />
-    <ClInclude Include="FileSpliter.h" />
+    <ClInclude Include="FileIO.h" />
     <ClInclude Include="WorkerState.h" />
     <ClInclude Include="WorkerStateEnum.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Cooridinator.cpp" />
-    <ClCompile Include="FileSpliter.cpp" />
+    <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="WorkerState.cpp" />
   </ItemGroup>

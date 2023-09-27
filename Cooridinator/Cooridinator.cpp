@@ -14,6 +14,8 @@ void Cooridinator::run(string inputFilePath) {
 	vector<string> reduceTasksID = getReduceTasksID();
 	vector<string> reducerOutputFilesPath = scheduleTask(reduceTasksID, WorkerStateEnum::Reduce);
 	// 执行shuffle操作，将reducer的输出汇总成一个文件
+	string outputFilePath = shuffle(reducerOutputFilesPath);
+	cout << "Cooridinator::run the output of mapreduce is " << outputFilePath << endl;
 }
 /*
 * 任务分配
@@ -210,7 +212,7 @@ void Cooridinator::stopWorker(int workerID) {
 }
 
 vector<string> Cooridinator::spiltInputFile(string inputFilePath) {
-	vector<string> spiltedFile = FileSpliter(inputFilePath, 64).split();
+	vector<string> spiltedFile = FileIO(inputFilePath, 64).splitInputFile();
 	return spiltedFile;
 }
 vector<string> Cooridinator::getReduceTasksID() const {
@@ -222,5 +224,11 @@ void Cooridinator::heartBreak(int workerID) {
 	workersListLock.lock();
 	workersList[workerID].heartBreak();
 	workersListLock.unlock();
+}
+string Cooridinator::shuffle(const vector<string>& outputFilesPath) {
+	FileIO fileIO;
+	string outputFilePath = "../Files/mr_output.data";
+	fileIO.mergeFile(outputFilesPath, outputFilePath);
+	return outputFilePath;
 }
 
