@@ -13,7 +13,7 @@ bool WorkerState::setState(WorkerStateEnum state) {
 	return true;
 }
 
-string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int workerID, int taskID, int nReduce) {
+string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int workerID, int taskID, int otherTaskNum) {
     try {
         if (workerState != task) {
             throw exception("WorkerState::signTask logical error");
@@ -30,7 +30,7 @@ string WorkerState::signTask(WorkerStateEnum task, string inputFilePath, int wor
             throw exception("WorkerState::signTask connect timeout");
         }
         //调用远程服务，返回该任务写出文件路径
-        string outputFilePath = client.call<string>("runTask", (int)task, inputFilePath, workerID, nReduce);// runTask 为事先注册好的服务名，后面写参数
+        string outputFilePath = client.call<string>("runTask", (int)task, inputFilePath, workerID, otherTaskNum);// runTask 为事先注册好的服务名，后面写参数
         cout << "WorkerState::signTask " << outputFilePath << endl;
         return outputFilePath;
     }

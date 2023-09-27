@@ -14,7 +14,7 @@ class MapTask : public Task {
 public:
     MapTask(int workerID, int blockSize) : Task(workerID, blockSize){}
     // 执行map任务
-    string run(string inputFilePath, int nReduce);
+    string run(string inputFilePath, int otherTaskNum);
     // 用户定义的Map操作
     vector<pss> userDefinedTask(const vector<pss>& inputKV);
 

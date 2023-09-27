@@ -6,9 +6,14 @@ Cooridinator::Cooridinator(int nReduce) : nReduce(nReduce), workersNum(0), worke
 void Cooridinator::run(string inputFilePath) {
 	// 将输入文件分块，并分装成key-value形式
 	vector<string> mapperInputFilesPath = spiltInputFile(inputFilePath);
-	// 分配mapper任务
+	nMap = mapperInputFilesPath.size();
+	// 分配mapper任务 map任务返回的字符串并不是真正的输出文件路径，而是执行状态
 	vector<string> mapperOutputFilesPath = scheduleTask(mapperInputFilesPath, WorkerStateEnum::Map);
 	cout << "mapper task over" << endl;
+	// reducer任务传入的inputFilePath其实是reduce的taskID，返回的路径是各个reducer的输出文件路径
+	vector<string> reduceTasksID = getReduceTasksID();
+	vector<string> reducerOutputFilesPath = scheduleTask(reduceTasksID, WorkerStateEnum::Reduce);
+	// 执行shuffle操作，将reducer的输出汇总成一个文件
 }
 /*
 * 任务分配
@@ -35,6 +40,9 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 		tasksID.insert(i);
 		tasksIdToWorkersID[i] = vector<int>();
 	}
+	// 另一个任务的数量，用于执行任务时生成文件名
+	int otherTaskNum = nReduce;
+	if (taskType == WorkerStateEnum::Reduce) otherTaskNum = nMap;
 	//任务分配流程
 	while (tasksID.size()) {
 		for (set<int>::iterator taskID = tasksID.begin(); taskID != tasksID.end(); ) {
@@ -46,9 +54,8 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 					int workerID = tasksIdToWorkersID[*taskID][i];
 					string curOutputFilePath;
 					try {
-						// 最后一次不知道为什么不能返回值
+						// 最后一次不知道为什么不能返回值（要等很久）
 						curOutputFilePath = checkWorker(workerOutputFilesPathFuture[workerID], workerID, tasksID);
-						//cout << "Cooridinator::scheduleTask " << curOutputFilePath << endl;
 					}
 					catch (exception e) {
 						cout << e.what() << endl;
@@ -68,7 +75,7 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 						int newWorkerID = getIdleWorker(taskType);
 						if (newWorkerID >= 0) {
 							workerOutputFilesPathFuture[newWorkerID] = async(&WorkerState::signTask, &workersList[newWorkerID],
-								WorkerStateEnum::Map, inputFilesPath[*taskID], newWorkerID, *taskID, nReduce);
+								WorkerStateEnum::Map, inputFilesPath[*taskID], newWorkerID, *taskID, otherTaskNum);
 							tasksIdToWorkersID[*taskID].push_back(newWorkerID);
 						}
 					}
@@ -106,7 +113,7 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 						if (workerID < 0) throw exception("Cooridinator::scheduleTask logical error");
 						// 分配任务
 						workerOutputFilesPathFuture[workerID] = async(&WorkerState::signTask, 
-							&workersList[workerID], taskType, inputFilesPath[*taskID], workerID, *taskID, nReduce);
+							&workersList[workerID], taskType, inputFilesPath[*taskID], workerID, *taskID, otherTaskNum);
 						tasksIdToWorkersID[*taskID].push_back(workerID);
 						// 准备下一个检查task
 						taskID++;
@@ -121,7 +128,7 @@ vector<string> Cooridinator::scheduleTask(const vector<string>& inputFilesPath, 
 					if (workerID < 0) throw exception("Cooridinator::scheduleTask logical error");
 					// 分配任务
 					workerOutputFilesPathFuture[workerID] = async(&WorkerState::signTask,
-						&workersList[workerID], taskType, inputFilesPath[*taskID], workerID, *taskID, nReduce);
+						&workersList[workerID], taskType, inputFilesPath[*taskID], workerID, *taskID, otherTaskNum);
 					tasksIdToWorkersID[*taskID].push_back(workerID);
 					// 准备下一个检查task
 					taskID++;
@@ -205,6 +212,11 @@ void Cooridinator::stopWorker(int workerID) {
 vector<string> Cooridinator::spiltInputFile(string inputFilePath) {
 	vector<string> spiltedFile = FileSpliter(inputFilePath, 64).split();
 	return spiltedFile;
+}
+vector<string> Cooridinator::getReduceTasksID() const {
+	vector<string> reduceTasksID;
+	for (int i = 0; i < nReduce; ++i) reduceTasksID.push_back(to_string(i));
+	return reduceTasksID;
 }
 void Cooridinator::heartBreak(int workerID) {
 	workersListLock.lock();

@@ -20,13 +20,17 @@ void stopTask(rpc_conn conn) {
 	taskRunner = NULL;
 }
 
-string runTask(rpc_conn conn, int taskType, string inputFilePath, int workerID, int nReduce) {
+// taskType 用于标记任务类型
+// inputFilePath 在map任务中用于指定输入路径和当前任务编号，在reduce任务中仅用于指定任务编号（任务编号通过解码获取）
+// workerID主要用于发送心跳信号
+// otherTaskNum用于生成文件路径
+string runTask(rpc_conn conn, int taskType, string inputFilePath, int workerID, int otherTaskNum) {
 	taskRunner = NULL;
 	int blockSize = 16;
 	if (taskType == (int)WorkerStateEnum::Map) taskRunner = new MapTask(workerID, blockSize);
 	else if (taskType == (int)WorkerStateEnum::Reduce) taskRunner = new ReduceTask(workerID, blockSize);
 	if (!taskRunner) return "taskType error";
-	string outputFilePath = taskRunner->run(inputFilePath, nReduce);
+	string outputFilePath = taskRunner->run(inputFilePath, otherTaskNum);
 	delete taskRunner;
 	taskRunner = NULL;
 	return outputFilePath;
@@ -48,12 +52,13 @@ int main() {
     try {
 		thread stopController(runStopTaskContorller, stopControllerPort);
         runServer(serverPort);
-		stopController.join();/*
-		map<string, string> inputData;
-		FileCoder fileCoder("../Files/mr_input_1.data", 300);
-		while (!fileCoder.isInputEOF()) {
-			inputData = fileCoder.decodeMapperInputData();
-		}*/
+		stopController.join(); 
+		/*
+		string filePath = "mr_input_1.data";
+		ifstream inputFile;
+		inputFile.open(filePath, ios::in);
+		if (!inputFile.is_open())
+			cout << "can't open this file" << endl;*/
     }
     catch (exception e) {
         cout << e.what() << endl;

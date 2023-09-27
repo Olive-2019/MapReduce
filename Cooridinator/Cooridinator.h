@@ -16,6 +16,7 @@ using std::map;
 using std::pair;
 using std::vector;
 using std::string;
+using std::to_string;
 using std::exception;
 
 using std::thread;
@@ -63,6 +64,8 @@ class Cooridinator {
 
 	// 将输入文件分成nMap个map的输入文件
 	vector<string> spiltInputFile(string inputFilePath);
+	// 返回reduce taskID的字符串
+	vector<string> getReduceTasksID() const;
 
 public:
 	//有参构造函数，nMap和nReduce是工厂类指定的

@@ -37,7 +37,7 @@ public:
 	//设置worker的状态
 	bool setState(WorkerStateEnum state);
 	//分配worker任务，阻塞函数模式
-	string signTask(WorkerStateEnum task, string inputFilePath, int workerID, int taskID, int nReduce);
+	string signTask(WorkerStateEnum task, string inputFilePath, int workerID, int taskID, int otherTaskNum);
 	// 获取任务编号
 	int getTaskID() const;
 	//查看任务是否超时

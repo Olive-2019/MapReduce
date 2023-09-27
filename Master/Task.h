@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 using std::map;
 using std::remove;
@@ -24,7 +25,7 @@ class Task
 {
 protected:
 	
-	int workerID, nReduce, taskID, blockSize;
+	int workerID, otherTaskNum, taskID, blockSize;
 	bool stopHeartBreak, stopTask;
 	// 读入的kv键值对
 	map<string, string> inputKV;
@@ -41,11 +42,11 @@ public:
 	Task(int workerID, int blockSize);
 	// 运行任务 map的输入是单文件名，reduce的输入是多文件名，多文件名中间以'-'间隔
 	// 父类run做一些初始化的操作，也fork出心跳线程
-	virtual string run(string inputFilePath, int nReduce);
+	virtual string run(string inputFilePath, int otherTaskNum);
 	// 运行结束的操作，包括停止心跳进程，回收该线程等
 	void afterRun();
 	// 数据分类，map 运行后调用 reduce 运行前调用
-	virtual void shuffle(){}
+	// virtual void shuffle(){}
 	
 	// 发送心跳信号
 	void heartBreak(int workerID);

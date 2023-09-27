@@ -1,4 +1,17 @@
-﻿  MapTask.cpp
+﻿  FileCoder.cpp
+C:\Users\14972\source\repos\Cooridinator\Master\FileCoder.cpp(13,19): warning C4267: “+=”: 从“size_t”转换到“int”，可能丢失数据
+  MapTask.cpp
 C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(285,12): warning C4244: “return”: 从“uint64_t”转换到“long”，可能丢失数据
 C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(586,36): warning C4244: “参数”: 从“uint64_t”转换到“long”，可能丢失数据
+  ReduceTask.cpp
+C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(285,12): warning C4244: “return”: 从“uint64_t”转换到“long”，可能丢失数据
+C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(586,36): warning C4244: “参数”: 从“uint64_t”转换到“long”，可能丢失数据
+C:\Users\14972\source\repos\Cooridinator\Master\ReduceTask.cpp(21,10): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  Task.cpp
+C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(285,12): warning C4244: “return”: 从“uint64_t”转换到“long”，可能丢失数据
+C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(586,36): warning C4244: “参数”: 从“uint64_t”转换到“long”，可能丢失数据
+  main.cpp
+C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(285,12): warning C4244: “return”: 从“uint64_t”转换到“long”，可能丢失数据
+C:\Users\14972\source\repos\Cooridinator\rest_rpc\include\rest_rpc\rpc_client.hpp(586,36): warning C4244: “参数”: 从“uint64_t”转换到“long”，可能丢失数据
+  正在生成代码...
   Master.vcxproj -> C:\Users\14972\source\repos\Cooridinator\x64\Debug\Master.exe

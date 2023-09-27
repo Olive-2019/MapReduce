@@ -14,14 +14,14 @@ void Task::removeTmpFiles(const vector<string>& tmpFilesPath) {
     for (int i = 0; i < tmpFilesPath.size(); ++i)
         if (remove(tmpFilesPath[i].c_str())) throw exception("Task::stopTaskRunner delete tmp file failed");
 }
-string Task::run(string inputFilePath, int nReduce) {
+string Task::run(string inputFilePath, int otherTaskNum) {
     taskID = 0;
     // ÌáÈ¡taskID
     for (int i = 0; i < inputFilePath.size(); ++i) {
         if (inputFilePath[i] <= '9' && inputFilePath[i] >= '0') taskID *= 10, taskID += (inputFilePath[i] - '0');
         else if (taskID) break;
     }
-    this->nReduce = nReduce;
+    this->otherTaskNum = otherTaskNum;
     stopHeartBreak = false;
     heartBreakThread = new thread(&Task::heartBreak, this, workerID);
     
